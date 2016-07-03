@@ -1,6 +1,4 @@
-(.importScripts js/self "base.js")
-
-(ns meshworker
+(ns ex05b.meshworker
   (:require-macros
    [cljs-log.core :refer [debug info warn]])
   (:require

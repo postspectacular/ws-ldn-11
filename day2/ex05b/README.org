@@ -3,7 +3,14 @@
 ** Building
 
 #+BEGIN_SRC shell
-lein do clean, cljsbuild once min && node postprocess.js
+# while developing
+lein run -m shadow.devtools.cli/dev demo
+
+# just build once (dev version)
+lein run -m shadow.devtools.cli/once demo
+
+# build a release (:advanced version)
+lein run -m shadow.devtools.cli/release demo
 
 python -m SimpleHTTPServer
 #+END_SRC

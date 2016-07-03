@@ -31,7 +31,7 @@
   [msg]
   (let [[vertices fnormals id tx] (.-data msg)
         num   (* id 9)
-        mesh  (thi.ng.geom.gl.glmesh.GLMesh.
+        mesh  (glm/GLMesh.
                (js/Float32Array. vertices 0 num)
                (js/Float32Array. fnormals 0 num)
                nil nil nil id
@@ -114,13 +114,19 @@
    [:div [mesh-selecta]]
    [gl-component {:init init-gl :loop update-gl}]])
 
-(defn main
+(defn ^:export start
   []
-  (let [worker (js/Worker. "js/meshworker.js")]
+  (let [worker (js/Worker. "/js/meshworker.js")]
     (set! (.-onmessage worker) receive-mesh!)
     (swap! app assoc :worker worker)
     (reagent/render-component
      [app-component]
      (.getElementById js/document "app"))))
 
-(main)
+(defn stop
+  []
+  (when-let [w (:worker @app)]
+    (.terminate w))
+  (reagent/unmount-component-at-node (js/document.getElementById "app")))
+
+
