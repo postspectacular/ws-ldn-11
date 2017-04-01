@@ -1,0 +1,22 @@
+[{:id :demo
+  :target :browser
+  :modules
+  {:base
+   {:entries [cljs.core]
+    :depends-on #{}}
+
+   :app
+   {:entries [ex05b.core]
+    :depends-on #{:base}}
+
+   :meshworker
+   {:entries [ex05b.meshworker]
+    :depends-on #{:base}
+    :web-worker true}}
+
+  :public-path "/js"
+  :public-dir "resources/public/js"
+
+  :devtools {:before-load ex05b.core/stop
+             :after-load ex05b.core/start}
+  }]
