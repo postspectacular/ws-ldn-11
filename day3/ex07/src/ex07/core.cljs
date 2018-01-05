@@ -16,7 +16,12 @@
    [thi.ng.color.core :as col]
    [reagent.core :as reagent]))
 
+
+;; first initialize C module
+(defonce cmodule (js/Particles))
+
 (defonce app (reagent/atom {:mpos [0 0]}))
+
 
 (enable-console-print!)
 
@@ -45,12 +50,12 @@
   [this]
   (let [canvas      (reagent/dom-node this)
         ctx         (.getContext canvas "2d")
-        psys        (.ccall js/Particles "initParticleSystem" "*"
+        psys        (.ccall cmodule "initParticleSystem" "*"
                             #js ["number" "number" "number" "number"]
                             #js [10000 1000 (/ (.-width canvas) 2) -0.1 3])
-        psys-update (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
-        psys-count  (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
-        psys-get    (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])]
+        psys-update (.cwrap cmodule "updateParticleSystem" "*" #js ["number"])
+        psys-count  (.cwrap cmodule "getNumParticles" "number" #js ["number"])
+        psys-get    (.cwrap cmodule "getParticleComponent" "number" #js ["number" "number" "number"])]
     (swap! app merge
            {:psys        psys
             :psys-update psys-update
@@ -102,7 +107,7 @@
 
 (defn attrib-buffer-view
   [ptr stride num]
-  (js/Float32Array. (.-buffer (aget js/Particles "HEAPU8")) ptr (* stride num)))
+  (js/Float32Array. (.-buffer (aget cmodule "HEAPU8")) ptr (* stride num)))
 
 (defn update-attrib-buffer
   [gl attrib ptr stride num]
@@ -114,13 +119,13 @@
 
 (defn init-app-3d
   [this]
-  (let [psys         (.ccall js/Particles "initParticleSystem" "*"
+  (let [psys         (.ccall cmodule "initParticleSystem" "*"
                              #js ["number" "number" "number" "number"]
                              #js [10000 1000 0.0 -0.01 0.125])
-        psys-update  (.cwrap js/Particles "updateParticleSystem" "*" #js ["number"])
-        psys-count   (.cwrap js/Particles "getNumParticles" "number" #js ["number"])
-        psys-get     (.cwrap js/Particles "getParticleComponent" "number" #js ["number" "number" "number"])
-        particle-ptr (.ccall js/Particles "getParticlesPointer" "number" #js ["number"] #js [psys])
+        psys-update  (.cwrap cmodule "updateParticleSystem" "*" #js ["number"])
+        psys-count   (.cwrap cmodule "getNumParticles" "number" #js ["number"])
+        psys-get     (.cwrap cmodule "getParticleComponent" "number" #js ["number" "number" "number"])
+        particle-ptr (.ccall cmodule "getParticlesPointer" "number" #js ["number"] #js [psys])
         gl           (gl/gl-context (reagent/dom-node this))
         view         (gl/get-viewport-rect gl)
         tex          (buf/load-texture
@@ -172,8 +177,6 @@
 
 (defn main
   []
-  ;; first initialize C module
-  (js/Particles)
   (reagent/render-component
    [canvas-component
     {:init          init-app-3d
